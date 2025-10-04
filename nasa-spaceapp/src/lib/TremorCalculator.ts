@@ -1,40 +1,42 @@
 // As informações foram extraídas do arquivo objeto.txt
 
-class TremorCalculator {
-    private maxDiameterMeters: number;
-    private asteroidName: string;
+class ImpactCalculator {
+    private impactEnergyMt: number;
+    private impactName: string;
 
-    // A classe é instanciada com as informações da API
-    constructor(apiData: {
+    /**
+     * A classe é instanciada com a energia do impacto em megatons.
+     * @param impactData - Objeto contendo o nome e a energia do evento.
+     */
+    constructor(impactData: {
         name: string,
-        estimated_diameter: {
-            meters: {
-                estimated_diameter_max: number
-            }
-        }
+        energyMegatons: number
     }) {
-        this.maxDiameterMeters = apiData.estimated_diameter.meters.estimated_diameter_max; // 
-        this.asteroidName = apiData.name; // 
+        this.impactName = impactData.name;
+        this.impactEnergyMt = impactData.energyMegatons;
     }
 
     /**
-     * Calcula o raio máximo de tremores com base em análogos de impacto (Tunguska).
-     * O método usa um valor de área pré-definido (2150 km²) para análogos
-     * de asteroides com diâmetro entre 50 e 70 metros.
+     * Calcula o raio da área de devastação com base na energia do impacto,
+     * usando o evento de Tunguska como análogo.
      *
-     * @returns {number} O raio em quilômetros.
+     * @returns {number} O raio da devastação em quilômetros.
      */
-    public getTremorRadiusKm(): number {
-        // Verifica se o diâmetro está na faixa do análogo de Tunguska
-        if (this.maxDiameterMeters > 50 && this.maxDiameterMeters < 70) {
-            const TUNGUSKA_AREA_SQ_KM = 2150;
-            const radius = Math.sqrt(TUNGUSKA_AREA_SQ_KM / Math.PI);
-            console.log(`Cálculo de raio para o asteroide ${this.asteroidName} concluído.`);
-            return radius; // Retorna aproximadamente 26.16 km
-        } else {
-            // Lógica para outros tamanhos poderia ser implementada aqui
-            console.log("Diâmetro fora da faixa do análogo de Tunguska.");
-            return 0;
-        }
+    public getDevastationRadiusKm(): number {
+        // --- Ponto de Referência (Evento de Tunguska) ---
+        // Energia de referência do impacto de Tunguska em Megatons de TNT.
+        const REFERENCE_ENERGY_MT = 12;
+        // Área devastada por esse impacto de referência (em km²).
+        const REFERENCE_AREA_SQ_KM = 2150;
+
+        // --- Lógica de Escala Direta ---
+        // A nova área é proporcional à razão entre a nova energia e a energia de referência.
+        const scaledAreaSqKm = REFERENCE_AREA_SQ_KM * (this.impactEnergyMt / REFERENCE_ENERGY_MT);
+
+        // Calculamos o raio a partir da área escalonada.
+        const radius = Math.sqrt(scaledAreaSqKm / Math.PI);
+
+        console.log(`Cálculo de raio para o evento "${this.impactName}" concluído.`);
+        return radius;
     }
 }
