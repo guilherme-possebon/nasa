@@ -66,8 +66,8 @@ Loading affected cities...`,
   }
 
   return (
-    <div className="font-sans min-h-screen p-8 sm:p-20 grid place-items-center">
-      <div className="container max-w-lg">
+    <div className="font-sans min-h-screen flex justify-center">
+      <div className="container">
         <h1 className="text-2xl font-bold mb-4">Asteroid Impact Simulator</h1>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
