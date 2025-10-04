@@ -36,7 +36,7 @@ form.addEventListener("submit", async (e) => {
   const tnt = energy / 4.184e9;
 
   // Blast radius (in meters)
-  const blastRadius = parseFloat(document.getElementById("radius").value);
+  const blastRadius = diameter * 100;
 
   results.innerHTML = `
     <p>Mass: ${(mass/1e9).toFixed(2)} billion kg</p>
