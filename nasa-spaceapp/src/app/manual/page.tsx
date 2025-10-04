@@ -116,11 +116,11 @@ Loading affected cities...`,
         <h2 className="text-lg mb-4 text-gray-100">Asteroid Impact Simulator</h2>
 
         <SimulatorForm
-          formData={formData}
-          onChange={handleFormChange}
-          onSubmit={handleSubmit}
-          disabled={isSimulating}
-        />
+        formData={formData}
+        onChange={handleFormChange}
+        onSubmit={handleSubmit}
+        lockKinematics={false}  // 🔓 Editáveis aqui
+      />
 
         {isSimulating && (
           <button

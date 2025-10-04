@@ -4,14 +4,15 @@ import * as React from 'react';
 
 export interface SimulatorFormProps {
   formData: {
-    diameter: number;
-    velocity: number;
+    diameter: number; // metros
+    velocity: number; // m/s
     lat: number;
     lon: number;
   };
   onChange: (name: keyof SimulatorFormProps['formData'], value: number) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   disabled?: boolean;
+  lockKinematics?: boolean;
 }
 
 export default function SimulatorForm({
@@ -19,12 +20,17 @@ export default function SimulatorForm({
   onChange,
   onSubmit,
   disabled,
+  lockKinematics = false,
 }: SimulatorFormProps) {
   const handleNumber =
-    (name: keyof SimulatorFormProps['formData']) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    (name: keyof SimulatorFormProps['formData']) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       const v = e.currentTarget.valueAsNumber;
       onChange(name, Number.isFinite(v) ? v : 0);
     };
+
+  const diameterKm = formData.diameter ? formData.diameter / 1000 : 0; // m -> km
+  const velocityKms = formData.velocity ? formData.velocity / 1000 : 0; // m/s -> km/s
 
   return (
     <form
@@ -34,34 +40,59 @@ export default function SimulatorForm({
       <fieldset disabled={disabled}>
         <h2 className="text-lg font-semibold text-gray-800">Simulation Parameters</h2>
 
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-gray-700">Diameter (m)</span>
-          <input
-            type="number"
-            value={formData.diameter}
-            onChange={handleNumber('diameter')}
-            min={0}
-            required
-            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900
-                       placeholder-gray-400 outline-none transition
-                       focus:border-sky-500 focus:ring-4 focus:ring-sky-200/60"
-          />
-        </label>
+        {/* Diameter */}
+        {!lockKinematics ? (
+          <label className="block">
+            <span className="mb-1 block text-sm font-medium text-gray-700">Diameter (km)</span>
+            <input
+              type="number"
+              value={formData.diameter}
+              onChange={handleNumber('diameter')}
+              step="any"
+              min={0}
+              required
+              className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900
+                         placeholder-gray-400 outline-none transition
+                         focus:border-sky-500 focus:ring-4 focus:ring-sky-200/60"
+            />
+          </label>
+        ) : (
+          <div className="rounded-xl bg-white border border-gray-200 p-3">
+            <div className="text-xs text-gray-500 mb-1">Diameter (locked)</div>
+            <div className="text-sm font-medium text-gray-800">
+              {diameterKm ? `${diameterKm.toFixed(3)} km` : '—'}
+            </div>
+          </div>
+        )}
 
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-gray-700">Velocity (km/s)</span>
-          <input
-            type="number"
-            value={formData.velocity}
-            onChange={handleNumber('velocity')}
-            min={0}
-            required
-            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900
-                       placeholder-gray-400 outline-none transition
-                       focus:border-sky-500 focus:ring-4 focus:ring-sky-200/60"
-          />
-        </label>
+        {!lockKinematics ? (
+          <label className="block">
+            <span className="mb-1 block text-sm font-medium text-gray-700">Velocity (km/s)</span>
+            <input
+              type="number"
+              value={formData.velocity / 1000 /* mostra em km/s */}
+              onChange={(e) => {
+                const v = e.currentTarget.valueAsNumber; // km/s
+                onChange('velocity', Number.isFinite(v) ? v * 1000 : 0); // salva m/s
+              }}
+              step="any"
+              min={0}
+              required
+              className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900
+                         placeholder-gray-400 outline-none transition
+                         focus:border-sky-500 focus:ring-4 focus:ring-sky-200/60"
+            />
+          </label>
+        ) : (
+          <div className="rounded-xl bg-white border border-gray-200 p-3">
+            <div className="text-xs text-gray-500 mb-1">Velocity (locked)</div>
+            <div className="text-sm font-medium text-gray-800">
+              {velocityKms ? `${velocityKms.toFixed(2)} km/s` : '—'}
+            </div>
+          </div>
+        )}
 
+        {/* Latitude */}
         <label className="block">
           <span className="mb-1 block text-sm font-medium text-gray-700">Latitude</span>
           <input
