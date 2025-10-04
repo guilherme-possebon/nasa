@@ -93,7 +93,7 @@ Loading affected cities...`,
 
   return (
     <div className="font-sans min-h-screen flex">
-      <div className="w-4/6 h-screen border-r border-gray-300">
+      <div className="w-3/4 h-screen border-r border-gray-300">
         <Map>
           <LayerManager
             blastRadius={blastRadius}
@@ -111,7 +111,7 @@ Loading affected cities...`,
         </Map>
       </div>
 
-      <div className="w-2/6 h-screen p-6 overflow-y-auto bg-gray-700">
+      <div className="w-1/4 h-screen p-6 overflow-y-auto bg-gray-700">
         <h1 className="text-2xl font-bold mb-2 text-white">Chicxulub</h1>
         <h2 className="text-lg mb-4 text-gray-100">Asteroid Impact Simulator</h2>
 
