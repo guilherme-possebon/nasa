@@ -68,26 +68,30 @@ Loading affected cities...`,
   }
 
   return (
-    <div className="font-sans min-h-screen flex justify-center">
-      <div className="container">
+    <div className="font-sans min-h-screen flex">
+      <div className="w-3/4 h-screen border-r border-gray-300">
+        <Map>
+          <LayerManager
+            blastRadius={blastRadius}
+            cities={cities}
+            onClick={(lat, lon) => {
+              setFormData((prev) => ({ ...prev, lat, lon }));
+            }}
+          />
+        </Map>
+      </div>
+
+      <div className="w-1/4 h-screen p-6 overflow-y-auto">
+        <h1 className="text-2xl font-bolder mb-4">Chicxulub</h1>
         <h1 className="text-2xl font-bold mb-4">Asteroid Impact Simulator</h1>
 
-        <SimulatorForm formData={formData} onChange={handleFormChange} onSubmit={handleSubmit} />
+        <SimulatorForm
+          formData={formData}
+          onChange={handleFormChange}
+          onSubmit={handleSubmit}
+        />
 
-        <pre className="mt-6 whitespace-pre-wrap">{results}</pre>
-
-        <div className="mt-6 h-96 w-full rounded border overflow-hidden">
-          <Map>
-            <LayerManager
-              blastRadius={blastRadius}
-              cities={cities}
-              onClick={(lat, lon) => {
-                setFormData((prev) => ({ ...prev, lat }));
-                setFormData((prev) => ({ ...prev, lon }));
-              }}
-            />
-          </Map>
-        </div>
+        <pre className="mt-6 whitespace-pre-wrap text-sm">{results}</pre>
       </div>
     </div>
   );
