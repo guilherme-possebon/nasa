@@ -12,6 +12,8 @@ export interface SimulatorFormProps {
   onChange: (name: keyof SimulatorFormProps['formData'], value: number) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   disabled?: boolean;
+  isDiameterDisabled?: boolean;
+  isVelocityDisabled?: boolean;
 }
 
 export default function SimulatorForm({
@@ -19,6 +21,8 @@ export default function SimulatorForm({
   onChange,
   onSubmit,
   disabled,
+  isDiameterDisabled = false,
+  isVelocityDisabled = false,
 }: SimulatorFormProps) {
   const handleNumber =
     (name: keyof SimulatorFormProps['formData']) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,6 +46,7 @@ export default function SimulatorForm({
             onChange={handleNumber('diameter')}
             min={0}
             required
+            disabled={isDiameterDisabled}
             className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900
                        placeholder-gray-400 outline-none transition
                        focus:border-sky-500 focus:ring-4 focus:ring-sky-200/60"
@@ -56,6 +61,7 @@ export default function SimulatorForm({
             onChange={handleNumber('velocity')}
             min={0}
             required
+            disabled={isVelocityDisabled}
             className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900
                        placeholder-gray-400 outline-none transition
                        focus:border-sky-500 focus:ring-4 focus:ring-sky-200/60"
