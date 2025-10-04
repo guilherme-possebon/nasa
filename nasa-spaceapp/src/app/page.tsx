@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
-import { OverpassElement, OverpassResponse } from '@/types/overpass';
+import type { OverpassElement, OverpassResponse } from '@/types/overpass';
 import LayerManager from '@/components/LayerManager';
 import SimulatorForm from '@/components/SimulatorForm';
 import Crater from '@/lib/Crater';
@@ -25,13 +25,16 @@ export default function Home() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  async function fetchCities(lat: number, lon: number, radius: number): Promise<OverpassElement[]> {
-    const query = `[out:json];
-      node(around:${radius},${lat},${lon})["place"="city"];
-      out body;`;
-    const url = 'https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query);
-    const response = await fetch(url);
-    const data: OverpassResponse = await response.json();
+  async function fetchCitiesViaApi(lat: number, lon: number, radius: number): Promise<OverpassElement[]> {
+    const params = new URLSearchParams({
+      lat: String(lat),
+      lon: String(lon),
+      radius: String(radius),
+    });
+
+    const res = await fetch(`/api/overpass?${params.toString()}`);
+    if (!res.ok) throw new Error(`API /overpass: ${res.status}`);
+    const data: OverpassResponse = await res.json();
     return data.elements || [];
   }
 
@@ -50,15 +53,13 @@ Loading affected cities...`,
     setBlastRadius(crater.borderRadius);
 
     try {
-      const cs = await fetchCities(lat, lon, crater.borderRadius);
+      const cs = await fetchCitiesViaApi(lat, lon, crater.borderRadius);
       setCities(cs);
+
       if (cs.length === 0) {
         setResults((prev) => prev + '\nNo cities found in blast radius.');
       } else {
-        const names = cs
-          .map((c) => c.tags.name)
-          .filter(Boolean)
-          .join(', ');
+        const names = cs.map((c) => c.tags.name).filter(Boolean).join(', ');
         setResults((prev) => prev + `\nAffected cities: ${names}`);
       }
     } catch (err) {
@@ -69,7 +70,7 @@ Loading affected cities...`,
 
   return (
     <div className="font-sans min-h-screen flex">
-      <div className="w-3/4 h-screen border-r border-gray-300">
+      <div className="w-4/6 h-screen border-r border-gray-300">
         <Map>
           <LayerManager
             blastRadius={blastRadius}
@@ -81,9 +82,9 @@ Loading affected cities...`,
         </Map>
       </div>
 
-      <div className="w-1/4 h-screen p-6 overflow-y-auto">
-        <h1 className="text-2xl font-bolder mb-4">Chicxulub</h1>
-        <h1 className="text-2xl font-bold mb-4">Asteroid Impact Simulator</h1>
+      <div className="w-2/6 h-screen p-6 overflow-y-auto bg-gray-700">
+        <h1 className="text-2xl font-bold mb-2 text-white">Chicxulub</h1>
+        <h2 className="text-lg mb-4 text-gray-100">Asteroid Impact Simulator</h2>
 
         <SimulatorForm
           formData={formData}
@@ -91,7 +92,7 @@ Loading affected cities...`,
           onSubmit={handleSubmit}
         />
 
-        <pre className="mt-6 whitespace-pre-wrap text-sm">{results}</pre>
+        <pre className="mt-6 whitespace-pre-wrap text-sm text-gray-100">{results}</pre>
       </div>
     </div>
   );
