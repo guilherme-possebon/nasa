@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const NASA_API_KEY = process.env.NASA_API_KEY;
+const NASA_API_BASE_URL = process.env.NASA_API_BASE_URL;
 
 // Rota: /api/neos/3542519
 export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
   const { id } = params;
 
   try {
-    const url = `https://api.nasa.gov/neo/rest/v1/neo/${id}?api_key=${NASA_API_KEY}`;
+    const url = `${NASA_API_BASE_URL}/${id}?api_key=${NASA_API_KEY}`;
     const res = await fetch(url, { next: { revalidate: 86400 } }); // cache 1 dia
     if (!res.ok) throw new Error("Falha na API da NASA");
     const neo = await res.json();
