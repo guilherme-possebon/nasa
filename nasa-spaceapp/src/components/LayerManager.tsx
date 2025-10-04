@@ -1,18 +1,20 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useMap } from 'react-leaflet';
 import type { OverpassElement } from '@/types/overpass';
 
 interface Props {
-  lat: number;
-  lon: number;
   blastRadius: number;
   cities: OverpassElement[];
+  onClick?: (lat: number, lon: number) => void;
 }
 
-export default function LayerManager({ lat, lon, blastRadius, cities }: Props) {
+export default function LayerManager({ blastRadius, cities, onClick }: Props) {
   const map = useMap();
+
+  const [lat, setLat] = useState(0);
+  const [lon, setLon] = useState(0);
 
   useEffect(() => {
     // Dynamically import leaflet only in the browser
@@ -23,6 +25,14 @@ export default function LayerManager({ lat, lon, blastRadius, cities }: Props) {
       map.eachLayer((layer) => {
         if (layer instanceof L.TileLayer) return;
         map.removeLayer(layer);
+      });
+
+      map.addEventListener('click', (e) => {
+        const { lat: clickedLat, lng: clickedLng } = e.latlng;
+        setLat(clickedLat);
+        setLon(clickedLng);
+
+        if (onClick) onClick(clickedLat, clickedLng);
       });
 
       if (!lat && !lon) return;
@@ -43,7 +53,7 @@ export default function LayerManager({ lat, lon, blastRadius, cities }: Props) {
 
       map.setView([lat, lon], 3);
     });
-  }, [map, lat, lon, blastRadius, cities]);
+  }, [map, lat, lon, blastRadius, cities, onClick]);
 
   return null;
 }
