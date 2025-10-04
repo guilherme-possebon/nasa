@@ -1,22 +1,17 @@
 // src/lib/tsunami/TsunamiEngine.ts
-import { GeoUtils } from "../math/GeoUtils";
-import {
-
-  TsunamiInput,
-  TsunamiPointQuery,
-  TsunamiPointResult,
-} from "../../types/types";
-import { CouplingModel } from "@/types/CouplingModelType";
-import { CavityModel } from "@/types/CavityModelTypes";
-import { PropagationModel } from "@/types/PropagationModelTypes";
-import { RunupModel } from "@/types/RunupModelTypes";
+import { GeoUtils } from '../math/GeoUtils';
+import { TsunamiInput, TsunamiPointQuery, TsunamiPointResult } from '../../types/tsunamiModal';
+import { CouplingModel } from '@/types/couplingModel';
+import { CavityModel } from '@/types/cavityModel';
+import { PropagationModel } from '@/types/propagationModel';
+import { RunupModel } from '@/types/runupModel';
 
 export class TsunamiEngine {
   constructor(
     private coupling: CouplingModel,
     private cavity: CavityModel,
     private propagation: PropagationModel,
-    private runup: RunupModel | null = null
+    private runup: RunupModel | null = null,
   ) {}
 
   simulatePoint(input: TsunamiInput, query: TsunamiPointQuery): TsunamiPointResult {

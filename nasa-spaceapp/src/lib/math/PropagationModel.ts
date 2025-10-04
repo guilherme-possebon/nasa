@@ -1,8 +1,6 @@
 // src/lib/math/PropagationModel.ts
 
-import { PropagationModel } from "@/types/PropagationModelTypes";
-
-
+import { PropagationModel } from '@/types/propagationModel';
 
 /** Heurística: H ~ H0 / sqrt(dist) ; c ~ sqrt(g*h) */
 export class ShallowWaterPropagation implements PropagationModel {

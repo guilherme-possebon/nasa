@@ -1,42 +1,38 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useMap } from 'react-leaflet';
 import type { OverpassElement } from '@/types/overpass';
+import type { LeafletMouseEvent } from 'leaflet';
 
 interface Props {
   blastRadius: number;
   cities: OverpassElement[];
+  lat: number;
+  lon: number;
   onClick?: (lat: number, lon: number) => void;
 }
 
-export default function LayerManager({ blastRadius, cities, onClick }: Props) {
+export default function LayerManager({ blastRadius, cities, lat, lon, onClick }: Props) {
   const map = useMap();
-
-  const [lat, setLat] = useState(0);
-  const [lon, setLon] = useState(0);
 
   useEffect(() => {
     // Dynamically import leaflet only in the browser
     if (typeof window === 'undefined') return;
 
-    import('leaflet').then((L) => {
+    const LPromise = import('leaflet');
+
+    LPromise.then((L) => {
       // Clear previous layers except tile layer
       map.eachLayer((layer) => {
         if (layer instanceof L.TileLayer) return;
         map.removeLayer(layer);
       });
 
-      map.addEventListener('click', (e) => {
-        const { lat: clickedLat, lng: clickedLng } = e.latlng;
-        setLat(clickedLat);
-        setLon(clickedLng);
-
-        if (onClick) onClick(clickedLat, clickedLng);
-      });
-
+      // Don't draw anything if lat/lon are at their initial zero state
       if (!lat && !lon) return;
 
+      // Draw marker and circle based on props
       L.marker([lat, lon]).addTo(map).bindPopup('Impact site').openPopup();
 
       L.circle([lat, lon], {
@@ -53,7 +49,22 @@ export default function LayerManager({ blastRadius, cities, onClick }: Props) {
 
       map.setView([lat, lon], 3);
     });
-  }, [map, lat, lon, blastRadius, cities, onClick]);
+  }, [map, lat, lon, blastRadius, cities]);
+
+  useEffect(() => {
+    if (!onClick) return; // If no onClick prop, do nothing
+
+    const handleClick = (e: LeafletMouseEvent) => {
+      const { lat: clickedLat, lng: clickedLng } = e.latlng;
+      onClick(clickedLat, clickedLng);
+    };
+
+    map.on('click', handleClick);
+
+    return () => {
+      map.off('click', handleClick);
+    };
+  }, [map, onClick]);
 
   return null;
 }

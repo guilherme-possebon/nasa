@@ -14,7 +14,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Clucxulub - Asteroid Impact Simulator',
-  description: 'By Team Clucxulub for NASA Space Apps 2025 - Alan, Guilherme D., Guilherme P., Matheus, Rafael',
+  description:
+    'By Team Clucxulub for NASA Space Apps 2025 - Alan, Guilherme D., Guilherme P., Matheus, Rafael',
 };
 
 export default function RootLayout({

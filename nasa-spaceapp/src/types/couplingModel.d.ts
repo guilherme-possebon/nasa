@@ -1,4 +1,4 @@
-import { AsteroidParamsTypes } from "./AsteroidParamsTypes";
+import { AsteroidParamsTypes } from './asteroidParams';
 
 export interface CouplingModel {
   coupledEnergyJ(params: AsteroidParamsTypes): number;

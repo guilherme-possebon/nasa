@@ -1,9 +1,7 @@
 // src/lib/tsunami/types.ts
 // Centraliza interfaces e tipos usados no módulo de tsunami.
 
-import { AsteroidParamsTypes } from "./AsteroidParamsTypes";
-
-
+import { AsteroidParamsTypes } from './asteroidParams';
 
 export interface TsunamiInput {
   asteroid: AsteroidParamsTypes;
@@ -24,5 +22,3 @@ export interface TsunamiPointResult {
   waveHeightM: number;
   runupM?: number;
 }
-
-

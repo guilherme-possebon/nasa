@@ -20,12 +20,17 @@ export default function Home() {
   const [results, setResults] = useState('');
   const [cities, setCities] = useState<OverpassElement[]>([]);
   const [blastRadius, setBlastRadius] = useState(0);
+  const [isSimulating, setIsSimulating] = useState(false);
 
   const handleFormChange = (name: keyof typeof formData, value: number) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  async function fetchCitiesViaApi(lat: number, lon: number, radius: number): Promise<OverpassElement[]> {
+  async function fetchCitiesViaApi(
+    lat: number,
+    lon: number,
+    radius: number,
+  ): Promise<OverpassElement[]> {
     const params = new URLSearchParams({
       lat: String(lat),
       lon: String(lon),
@@ -40,6 +45,7 @@ export default function Home() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setIsSimulating(true); // Lock the map and form
     const { diameter, velocity, density, lat, lon } = formData;
 
     const crater: Crater = new Crater(diameter, velocity, density);
@@ -59,7 +65,10 @@ Loading affected cities...`,
       if (cs.length === 0) {
         setResults((prev) => prev + '\nNo cities found in blast radius.');
       } else {
-        const names = cs.map((c) => c.tags.name).filter(Boolean).join(', ');
+        const names = cs
+          .map((c) => c.tags.name)
+          .filter(Boolean)
+          .join(', ');
         setResults((prev) => prev + `\nAffected cities: ${names}`);
       }
     } catch (err) {
@@ -68,6 +77,20 @@ Loading affected cities...`,
     }
   }
 
+  const handleReset = () => {
+    setIsSimulating(false); // Unlock the map and form
+    setFormData({
+      diameter: 0,
+      velocity: 0,
+      density: 3000,
+      lat: 0,
+      lon: 0,
+    });
+    setResults('');
+    setCities([]);
+    setBlastRadius(0);
+  };
+
   return (
     <div className="font-sans min-h-screen flex">
       <div className="w-4/6 h-screen border-r border-gray-300">
@@ -75,9 +98,15 @@ Loading affected cities...`,
           <LayerManager
             blastRadius={blastRadius}
             cities={cities}
-            onClick={(lat, lon) => {
-              setFormData((prev) => ({ ...prev, lat, lon }));
-            }}
+            lat={formData.lat}
+            lon={formData.lon}
+            onClick={
+              !isSimulating
+                ? (lat, lon) => {
+                    setFormData((prev) => ({ ...prev, lat, lon }));
+                  }
+                : undefined
+            }
           />
         </Map>
       </div>
@@ -90,7 +119,20 @@ Loading affected cities...`,
           formData={formData}
           onChange={handleFormChange}
           onSubmit={handleSubmit}
+          disabled={isSimulating}
         />
+
+        {isSimulating && (
+          <button
+            type="button"
+            onClick={handleReset}
+            className="mt-4 w-full rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white
+                       shadow-sm transition hover:bg-red-700 focus:outline-none
+                       focus:ring-4 focus:ring-red-200/70 active:scale-[0.99] hover:cursor-pointer"
+          >
+            Reset Simulation
+          </button>
+        )}
 
         <pre className="mt-6 whitespace-pre-wrap text-sm text-gray-100">{results}</pre>
       </div>
