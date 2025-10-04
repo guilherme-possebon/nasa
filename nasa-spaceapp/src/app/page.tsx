@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import dynamic from "next/dynamic";
-import { useState } from "react";
-import { OverpassElement, OverpassResponse } from "@/types/overpass";
-import LayerManager from "@/components/LayerManager";
-import SimulatorForm from "@/components/SimulatorForm";
-import Crater from "@/lib/Crater";
+import dynamic from 'next/dynamic';
+import { useState } from 'react';
+import { OverpassElement, OverpassResponse } from '@/types/overpass';
+import LayerManager from '@/components/LayerManager';
+import SimulatorForm from '@/components/SimulatorForm';
+import Crater from '@/lib/Crater';
 
-const Map = dynamic(() => import("@/components/Map"), { ssr: false });
+const Map = dynamic(() => import('@/components/Map'), { ssr: false });
 
 export default function Home() {
   const [formData, setFormData] = useState({
@@ -17,7 +17,7 @@ export default function Home() {
     lat: 0,
     lon: 0,
   });
-  const [results, setResults] = useState("");
+  const [results, setResults] = useState('');
   const [cities, setCities] = useState<OverpassElement[]>([]);
   const [blastRadius, setBlastRadius] = useState(0);
 
@@ -29,7 +29,7 @@ export default function Home() {
     const query = `[out:json];
       node(around:${radius},${lat},${lon})["place"="city"];
       out body;`;
-    const url = "https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(query);
+    const url = 'https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query);
     const response = await fetch(url);
     const data: OverpassResponse = await response.json();
     return data.elements || [];
@@ -53,14 +53,17 @@ Loading affected cities...`,
       const cs = await fetchCities(lat, lon, crater.borderRadius);
       setCities(cs);
       if (cs.length === 0) {
-        setResults((prev) => prev + "\nNo cities found in blast radius.");
+        setResults((prev) => prev + '\nNo cities found in blast radius.');
       } else {
-        const names = cs.map((c) => c.tags.name).filter(Boolean).join(", ");
+        const names = cs
+          .map((c) => c.tags.name)
+          .filter(Boolean)
+          .join(', ');
         setResults((prev) => prev + `\nAffected cities: ${names}`);
       }
     } catch (err) {
       console.error(err);
-      setResults((prev) => prev + "\nError fetching cities data.");
+      setResults((prev) => prev + '\nError fetching cities data.');
     }
   }
 
@@ -69,21 +72,19 @@ Loading affected cities...`,
       <div className="container">
         <h1 className="text-2xl font-bold mb-4">Asteroid Impact Simulator</h1>
 
-        <SimulatorForm
-          formData={formData}
-          onChange={handleFormChange}
-          onSubmit={handleSubmit}
-        />
+        <SimulatorForm formData={formData} onChange={handleFormChange} onSubmit={handleSubmit} />
 
         <pre className="mt-6 whitespace-pre-wrap">{results}</pre>
 
         <div className="mt-6 h-96 w-full rounded border overflow-hidden">
           <Map>
             <LayerManager
-              lat={formData.lat}
-              lon={formData.lon}
               blastRadius={blastRadius}
               cities={cities}
+              onClick={(lat, lon) => {
+                setFormData((prev) => ({ ...prev, lat }));
+                setFormData((prev) => ({ ...prev, lon }));
+              }}
             />
           </Map>
         </div>
