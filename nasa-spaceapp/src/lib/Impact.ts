@@ -1,6 +1,6 @@
 // As informações foram extraídas do arquivo objeto.txt
 
-class ImpactCalculator {
+class Impact {
     private impactEnergyMt: number;
     private impactName: string;
 
@@ -22,7 +22,7 @@ class ImpactCalculator {
      *
      * @returns {number} O raio da devastação em quilômetros.
      */
-    public getDevastationRadiusKm(): number {
+    get devastationRadiusKm(): number {
         // --- Ponto de Referência (Evento de Tunguska) ---
         // Energia de referência do impacto de Tunguska em Megatons de TNT.
         const REFERENCE_ENERGY_MT = 12;
