@@ -1,32 +1,26 @@
-"use client";
+'use client';
 
-import dynamic from "next/dynamic";
-import { useState } from "react";
-import { OverpassElement, OverpassResponse } from "@/types/overpass";
-import LayerManager from "@/components/LayerManager";
+import dynamic from 'next/dynamic';
+import { useState } from 'react';
+import { OverpassElement, OverpassResponse } from '@/types/overpass';
+import LayerManager from '@/components/LayerManager';
 
-const Map = dynamic(() => import("@/components/Map"), { ssr: false });
+const Map = dynamic(() => import('@/components/Map'), { ssr: false });
 
 export default function Home() {
   const [diameter, setDiameter] = useState(0);
   const [velocity, setVelocity] = useState(0);
   const [lat, setLat] = useState(0);
   const [lon, setLon] = useState(0);
-  const [results, setResults] = useState("");
+  const [results, setResults] = useState('');
   const [cities, setCities] = useState<OverpassElement[]>([]);
   const [blastRadius, setBlastRadius] = useState(0);
 
-  async function fetchCities(
-    lat: number,
-    lon: number,
-    radius: number
-  ): Promise<OverpassElement[]> {
+  async function fetchCities(lat: number, lon: number, radius: number): Promise<OverpassElement[]> {
     const query = `[out:json];
       node(around:${radius},${lat},${lon})["place"="city"];
       out body;`;
-    const url =
-      "https://overpass-api.de/api/interpreter?data=" +
-      encodeURIComponent(query);
+    const url = 'https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query);
     const response = await fetch(url);
     const data: OverpassResponse = await response.json();
     return data.elements || [];
@@ -48,7 +42,7 @@ export default function Home() {
       `Mass: ${(mass / 1e9).toFixed(2)} billion kg
 Impact Energy: ${(tnt / 1e6).toFixed(2)} Megatons TNT
 Blast radius: ${(br / 1000).toFixed(2)} km
-Loading affected cities...`
+Loading affected cities...`,
     );
 
     setBlastRadius(br);
@@ -57,14 +51,17 @@ Loading affected cities...`
       const cs = await fetchCities(lat, lon, br);
       setCities(cs);
       if (cs.length === 0) {
-        setResults((prev) => prev + "\nNo cities found in blast radius.");
+        setResults((prev) => prev + '\nNo cities found in blast radius.');
       } else {
-        const names = cs.map((c) => c.tags.name).filter(Boolean).join(", ");
+        const names = cs
+          .map((c) => c.tags.name)
+          .filter(Boolean)
+          .join(', ');
         setResults((prev) => prev + `\nAffected cities: ${names}`);
       }
     } catch (err) {
       console.error(err);
-      setResults((prev) => prev + "\nError fetching cities data.");
+      setResults((prev) => prev + '\nError fetching cities data.');
     }
   }
 
@@ -125,12 +122,7 @@ Loading affected cities...`
 
         <div className="mt-6 h-96 w-full rounded border overflow-hidden">
           <Map>
-            <LayerManager
-              lat={lat}
-              lon={lon}
-              blastRadius={blastRadius}
-              cities={cities}
-            />
+            <LayerManager lat={lat} lon={lon} blastRadius={blastRadius} cities={cities} />
           </Map>
         </div>
       </div>
