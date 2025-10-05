@@ -3,6 +3,8 @@ import React from 'react';
 import SimulatorForm from '@/components/SimulatorForm';
 import ResultsPanel from '@/components/ResultsPanel';
 import NeoSelect from './NeoSelect';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft } from "@phosphor-icons/react";
 
 type NeoDetail = {
     id: string;
@@ -40,10 +42,26 @@ export default function Sidebar({
     neoInfo,
     handleNeoSelect,
 }: SidebarProps) {
+    const router = useRouter();
+
+    const handleBack = () => {
+        router.push('/'); // leva para a página inicial (localhost:3000)
+    };
     return (
         <>
-            <h1 className="text-2xl font-bold mb-2 text-white">Chicxulub</h1>
-            <h2 className="text-lg mb-4 text-gray-100">Asteroid Impact Simulator</h2>
+            <div className="flex items-center justify-between mb-4">
+                <h1 className="text-2xl font-bold text-white">Chicxulub</h1>
+
+                <button
+                    onClick={handleBack}
+                    title="Voltar à página inicial"
+                    className="text-white flex items-center bg-gray-800 px-3 py-1 rounded hover:bg-gray-600 hover:cursor-pointer transition"
+                >
+                    <ArrowLeft size={20} />
+                    Voltar
+                </button>
+            </div>
+            <h2 className="text-lg mb-4 text-gray-100">Spacial Impact Simulator</h2>
 
             {handleNeoSelect && (
                 <NeoSelect value={neoInfo?.id} onChange={handleNeoSelect} disabled={isSimulating} />

@@ -61,7 +61,7 @@ export default function Home() {
             ...prev,
             diameter: data.diameter_km ? data.diameter_km * 1000 : 0,
             velocity: data.velocity_kms ? data.velocity_kms * 1000 : 0,
-            density: data.density_kg_m3 ?? 3000,
+            density: data.density_kg_m3 ?? 3,
         }));
     }
 
