@@ -1,5 +1,4 @@
 export default class Crater {
-    private _diameter: number;
     private _radius: number;
     private _volume: number;
     private _mass: number;
