@@ -1,27 +1,33 @@
 'use client';
-import React from 'react';
-import SimulatorForm from '@/components/SimulatorForm';
-import ResultsPanel from '@/components/ResultsPanel';
-import NeoSelect from './NeoSelect';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft } from "@phosphor-icons/react";
 
-type NeoDetail = {
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeftIcon } from '@phosphor-icons/react';
+import ResultsPanel from '@/components/ResultsPanel';
+import SimulationSetup from './SimulationSetup';
+
+// --- TYPE INFERENCE FROM CONTEXT ---
+// By defining this type based on your SimulatorFormContext, we ensure consistency.
+// This can be in the same file or imported from a central 'types.ts' file.
+export interface ISimulatorFormData {
+    diameter: number;
+    velocity: number;
+    density: number;
+    lat: number;
+    lon: number;
+}
+
+// --- SHARED TYPES ---
+export type NeoDetail = {
     id: string;
     name: string;
     hazardous?: boolean;
     taxonomy?: { spec_B?: string; spec_T?: string; albedo_pv?: number };
 };
 
-interface SidebarProps {
-    formData: {
-        diameter: number;
-        velocity: number;
-        density: number;
-        lat: number;
-        lon: number;
-    };
-    onChange: (name: keyof SidebarProps['formData'], value: number) => void;
+export interface SidebarProps {
+    formData: ISimulatorFormData;
+    onChange: (name: keyof ISimulatorFormData, value: number) => void;
     onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
     lockKinematics: boolean;
     isSimulating: boolean;
@@ -31,76 +37,66 @@ interface SidebarProps {
     handleNeoSelect?: (id: string) => void;
 }
 
-export default function Sidebar({
-    formData,
-    onChange,
-    onSubmit,
-    lockKinematics,
-    isSimulating,
-    results,
-    onReset,
-    neoInfo,
-    handleNeoSelect,
-}: SidebarProps) {
+export default function Sidebar(props: SidebarProps) {
+    const { isSimulating, results, onReset } = props;
     const router = useRouter();
 
     const handleBack = () => {
-        router.push('/'); // leva para a página inicial (localhost:3000)
+        router.push('/');
     };
+
     return (
         <>
             <div className="flex items-center justify-between mb-4">
                 <h1 className="text-2xl font-bold text-white">Chicxulub</h1>
-
                 <button
                     onClick={handleBack}
                     title="Voltar à página inicial"
-                    className="text-white flex items-center bg-gray-800 px-3 py-1 rounded hover:bg-gray-600 hover:cursor-pointer transition"
+                    className="text-white flex items-center gap-2 bg-gray-800 px-3 py-1 rounded hover:bg-gray-700 transition"
                 >
-                    <ArrowLeft size={20} />
+                    <ArrowLeftIcon size={20} />
                     Voltar
                 </button>
             </div>
-            <h2 className="text-lg mb-4 text-gray-100">Spacial Impact Simulator</h2>
 
-            {handleNeoSelect && (
-                <NeoSelect value={neoInfo?.id} onChange={handleNeoSelect} disabled={isSimulating} />
-            )}
+            <h2 className="text-lg mb-4 text-gray-100">Spatial Impact Simulator</h2>
 
-            {neoInfo && (
-                <div className="p-3 rounded-lg bg-gray-800 text-white mb-4">
-                    <h3 className="font-bold text-lg">{neoInfo.name}</h3>
-                    {neoInfo.hazardous && (
-                        <div className="text-sm font-bold text-red-400">Potentially Hazardous</div>
-                    )}
-                    {neoInfo.taxonomy && (
-                        <div className="text-xs">
-                            Taxonomy:{' '}
-                            <span className="font-medium">
-                                {neoInfo.taxonomy?.spec_B ?? neoInfo.taxonomy?.spec_T}
-                            </span>
-                            {neoInfo.taxonomy?.albedo_pv != null && (
-                                <span className="ml-2 text-gray-300">
-                                    (albedo: {(neoInfo.taxonomy.albedo_pv as number).toFixed(2)})
-                                </span>
-                            )}
-                        </div>
-                    )}
-                    <div className="text-xs text-gray-300">
-                        * In &ldquo;API Data&rdquo;, diameter and velocity are locked (derived from
-                        NASA).
-                    </div>
-                </div>
-            )}
+            <SimulationSetup {...props} />
 
-            <SimulatorForm
-                formData={formData}
-                onChange={onChange}
-                onSubmit={onSubmit}
-                lockKinematics={lockKinematics}
-            />
-
-            <ResultsPanel results={results} isSimulating={isSimulating} onReset={onReset} />
+            <div className="mt-8 rounded-lg  bg-white p-6 shadow">
+                <h2 className="mb-4 text-lg font-semibold text-gray-800">Map Legends</h2>
+                <ul className="space-y-3">
+                    <li className="flex items-start gap-3">
+                        <div className="mt-1 h-3 w-3 flex-shrink-0 rounded-full bg-red-500"></div>
+                        <p className="text-sm text-gray-600">
+                            <strong className="font-medium text-gray-900">Crater Zone: </strong>
+                            represents the central impact point, where excavation and total
+                            destruction occur.
+                        </p>
+                    </li>
+                    <li className="flex items-start gap-3">
+                        <div className="mt-1 h-3 w-3 flex-shrink-0 rounded-full bg-orange-500"></div>
+                        <p className="text-sm text-gray-600">
+                            <strong className="font-medium text-gray-900">
+                                Blast Wave Radius:{' '}
+                            </strong>
+                            shows the propagation radius of the seismic and atmospheric pressure
+                            waves.
+                        </p>
+                    </li>
+                    <li className="flex items-start gap-3">
+                        <div className="mt-1 h-3 w-3 flex-shrink-0 rounded-full bg-yellow-400"></div>
+                        <p className="text-sm text-gray-600">
+                            <strong className="font-medium text-gray-900">
+                                Thermal Impact Area:{' '}
+                            </strong>
+                            indicates the area affected by extreme heat, responsible for fires and
+                            surface vaporization.
+                        </p>
+                    </li>
+                </ul>
+            </div>
+            {/* <ResultsPanel results={results} isSimulating={isSimulating} onReset={onReset} /> */}
         </>
     );
 }

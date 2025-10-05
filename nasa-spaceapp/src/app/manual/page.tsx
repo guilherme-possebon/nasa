@@ -7,7 +7,8 @@ import LayerManager from '@/components/LayerManager';
 import Crater from '@/lib/Crater';
 import { useSimulatorForm } from '@/context/SimulatorFormContext';
 import SimulationLayout from '@/components/SimulationLayout';
-import Sidebar from '@/components/Sidebar';
+import Sidebar, { ISimulatorFormData } from '@/components/Sidebar'; // Import ISimulatorFormData
+import { Impact } from '@/lib/Impact';
 
 const Map = dynamic(() => import('@/components/Map'), { ssr: false });
 
@@ -16,23 +17,24 @@ export default function Home() {
     const [results, setResults] = useState('');
     const [cities, setCities] = useState<OverpassElement[]>([]);
     const [crater, setCrater] = useState<Crater | null>(null);
+    const [impact, setImpact] = useState<Impact | null>(null);
     const [isSimulating, setIsSimulating] = useState(false);
 
-    const handleFormChange = (name: keyof typeof formData, value: number) => {
+    const handleFormChange = (name: keyof ISimulatorFormData, value: number) => {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    async function fetchCitiesViaApi(lat: number, lon: number, radius: number) {
-        const params = new URLSearchParams({
-            lat: String(lat),
-            lon: String(lon),
-            radius: String(radius),
-        });
-        const res = await fetch(`/api/overpass?${params.toString()}`);
-        if (!res.ok) throw new Error(`API /overpass: ${res.status}`);
-        const data: OverpassResponse = await res.json();
-        return data.elements || [];
-    }
+    // async function fetchCitiesViaApi(lat: number, lon: number, radius: number) {
+    //     const params = new URLSearchParams({
+    //         lat: String(lat),
+    //         lon: String(lon),
+    //         radius: String(radius),
+    //     });
+    //     const res = await fetch(`/api/overpass?${params.toString()}`);
+    //     if (!res.ok) throw new Error(`API /overpass: ${res.status}`);
+    //     const data: OverpassResponse = await res.json();
+    //     return data.elements || [];
+    // }
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -41,29 +43,36 @@ export default function Home() {
 
         const newCrater = new Crater(diameter, velocity, density);
         setCrater(newCrater);
+        setImpact(new Impact(newCrater.tnt));
 
         setResults(
-            `Mass: ${(newCrater.mass / 1e9).toFixed(2)} billion kg
-Impact Energy: ${(newCrater.tnt / 1e6).toFixed(2)} Megatons TNT
-Blast radius: ${(newCrater.borderRadius / 1000).toFixed(2)} km
-Loading affected cities...`,
+            `Mass: ${(newCrater.mass / 1e9).toFixed(2)} billion kg\n` +
+                `Impact Energy: ${(newCrater.tnt / 1e6).toFixed(2)} Megatons TNT\n` +
+                `Crater Diameter: ${(newCrater.craterDiameter / 1000).toFixed(2)} km\n` +
+                `Loading affected cities...`,
         );
 
-        try {
-            const cs = await fetchCitiesViaApi(lat, lon, newCrater.borderRadius);
-            setCities(cs);
-            if (cs.length === 0) {
-                setResults((prev) => prev + '\nNo cities found in blast radius.');
-            } else {
-                const names = cs
-                    .map((c) => c.tags.name)
-                    .filter(Boolean)
-                    .join(', ');
-                setResults((prev) => prev + `\nAffected cities: ${names}`);
-            }
-        } catch {
-            setResults((prev) => prev + '\nError fetching cities data.');
-        }
+        // try {
+        //     const cs = await fetchCitiesViaApi(lat, lon, newCrater.blastRadius);
+        //     setCities(cs);
+        //     if (cs.length === 0) {
+        //         setResults((prev) =>
+        //             prev.replace('Loading affected cities...', 'No cities found in blast radius.'),
+        //         );
+        //     } else {
+        //         const names = cs
+        //             .map((c) => c.tags.name)
+        //             .filter(Boolean)
+        //             .join(', ');
+        //         setResults((prev) =>
+        //             prev.replace('Loading affected cities...', `\nAffected cities: ${names}`),
+        //         );
+        //     }
+        // } catch {
+        //     setResults((prev) =>
+        //         prev.replace('Loading affected cities...', '\nError fetching cities data.'),
+        //     );
+        // }
     }
 
     const handleReset = () => {
@@ -72,6 +81,7 @@ Loading affected cities...`,
         setResults('');
         setCities([]);
         setCrater(null);
+        setImpact(null); // Reset the impact object
     };
 
     return (
@@ -80,6 +90,7 @@ Loading affected cities...`,
                 <Map>
                     <LayerManager
                         crater={crater}
+                        Impact={impact}
                         cities={cities}
                         lat={formData.lat}
                         lon={formData.lon}
