@@ -1,5 +1,5 @@
 // src/lib/tsunami/TsunamiEngine.ts
-import { GeoUtils } from '../math/GeoUtils';
+import { GeoUtils } from './GeoUtils';
 import { TsunamiInput, TsunamiPointQuery, TsunamiPointResult } from '../../types/tsunamiModal';
 import { CouplingModel } from '@/types/couplingModel';
 import { CavityModel } from '@/types/cavityModel';
