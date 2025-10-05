@@ -15,7 +15,7 @@ export default function Home() {
     const { formData, setFormData } = useSimulatorForm();
     const [results, setResults] = useState('');
     const [cities, setCities] = useState<OverpassElement[]>([]);
-    const [blastRadius, setBlastRadius] = useState(0);
+    const [crater, setCrater] = useState<Crater | null>(null);
     const [isSimulating, setIsSimulating] = useState(false);
 
     const handleFormChange = (name: keyof typeof formData, value: number) => {
@@ -39,18 +39,18 @@ export default function Home() {
         setIsSimulating(true);
         const { diameter, velocity, density, lat, lon } = formData;
 
-        const crater = new Crater(diameter, velocity, density);
+        const newCrater = new Crater(diameter, velocity, density);
+        setCrater(newCrater);
 
         setResults(
-            `Mass: ${(crater.mass / 1e9).toFixed(2)} billion kg
-Impact Energy: ${(crater.tnt / 1e6).toFixed(2)} Megatons TNT
-Blast radius: ${(crater.borderRadius / 1000).toFixed(2)} km
+            `Mass: ${(newCrater.mass / 1e9).toFixed(2)} billion kg
+Impact Energy: ${(newCrater.tnt / 1e6).toFixed(2)} Megatons TNT
+Blast radius: ${(newCrater.borderRadius / 1000).toFixed(2)} km
 Loading affected cities...`,
         );
-        setBlastRadius(crater.borderRadius);
 
         try {
-            const cs = await fetchCitiesViaApi(lat, lon, crater.borderRadius);
+            const cs = await fetchCitiesViaApi(lat, lon, newCrater.borderRadius);
             setCities(cs);
             if (cs.length === 0) {
                 setResults((prev) => prev + '\nNo cities found in blast radius.');
@@ -71,7 +71,7 @@ Loading affected cities...`,
         setFormData({ diameter: 0, velocity: 0, density: 3000, lat: 0, lon: 0 });
         setResults('');
         setCities([]);
-        setBlastRadius(0);
+        setCrater(null);
     };
 
     return (
@@ -79,7 +79,7 @@ Loading affected cities...`,
             map={
                 <Map>
                     <LayerManager
-                        blastRadius={blastRadius}
+                        crater={crater}
                         cities={cities}
                         lat={formData.lat}
                         lon={formData.lon}

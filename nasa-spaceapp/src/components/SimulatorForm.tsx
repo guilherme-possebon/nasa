@@ -3,138 +3,145 @@
 import * as React from 'react';
 
 export interface SimulatorFormProps {
-  formData: {
-    diameter: number; // metros
-    velocity: number; // m/s
-    lat: number;
-    lon: number;
-  };
-  onChange: (name: keyof SimulatorFormProps['formData'], value: number) => void;
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  disabled?: boolean;
-  lockKinematics?: boolean;
+    formData: {
+        diameter: number; // metros
+        velocity: number; // m/s
+        lat: number;
+        lon: number;
+    };
+    onChange: (name: keyof SimulatorFormProps['formData'], value: number) => void;
+    onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+    disabled?: boolean;
+    lockKinematics?: boolean;
 }
 
 export default function SimulatorForm({
-  formData,
-  onChange,
-  onSubmit,
-  disabled,
-  lockKinematics = false,
+    formData,
+    onChange,
+    onSubmit,
+    disabled,
+    lockKinematics = false,
 }: SimulatorFormProps) {
-  const handleNumber =
-    (name: keyof SimulatorFormProps['formData']) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const v = e.currentTarget.valueAsNumber;
-      onChange(name, Number.isFinite(v) ? v : 0);
-    };
+    const handleNumber =
+        (name: keyof SimulatorFormProps['formData']) =>
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            const v = e.currentTarget.valueAsNumber;
+            onChange(name, Number.isFinite(v) ? v : 0);
+        };
 
-  const diameterKm = formData.diameter ? formData.diameter / 1000 : 0; // m -> km
-  const velocityKms = formData.velocity ? formData.velocity / 1000 : 0; // m/s -> km/s
+    const diameterKm = formData.diameter ? formData.diameter / 1000 : 0; // m -> km
+    const velocityKms = formData.velocity ? formData.velocity / 1000 : 0; // m/s -> km/s
 
-  return (
-    <form
-      onSubmit={onSubmit}
-      className="rounded-2xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 shadow-sm p-6 space-y-4"
-    >
-      <fieldset disabled={disabled}>
-        <h2 className="text-lg font-semibold text-gray-800">Simulation Parameters</h2>
+    return (
+        <form
+            onSubmit={onSubmit}
+            className="rounded-2xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 shadow-sm p-6 space-y-4"
+        >
+            <fieldset disabled={disabled}>
+                <h2 className="text-lg font-semibold text-gray-800">Simulation Parameters</h2>
 
-        {/* Diameter */}
-        {!lockKinematics ? (
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium text-gray-700">Diameter (km)</span>
-            <input
-              type="number"
-              value={formData.diameter}
-              onChange={handleNumber('diameter')}
-              step="any"
-              min={0}
-              required
-              className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900
+                {/* Diameter */}
+                {!lockKinematics ? (
+                    <label className="block">
+                        <span className="mb-1 block text-sm font-medium text-gray-700">
+                            Diameter (km)
+                        </span>
+                        <input
+                            type="number"
+                            value={formData.diameter / 1000 /* mostra em km */}
+                            onChange={(e) => {
+                                const v = e.currentTarget.valueAsNumber; // km
+                                onChange('diameter', Number.isFinite(v) ? v * 1000 : 0); // salva m
+                            }}
+                            step="any"
+                            min={0}
+                            required
+                            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900
                          placeholder-gray-400 outline-none transition
                          focus:border-sky-500 focus:ring-4 focus:ring-sky-200/60"
-            />
-          </label>
-        ) : (
-          <div className="rounded-xl bg-white border border-gray-200 p-3">
-            <div className="text-xs text-gray-500 mb-1">Diameter (locked)</div>
-            <div className="text-sm font-medium text-gray-800">
-              {diameterKm ? `${diameterKm.toFixed(3)} km` : '—'}
-            </div>
-          </div>
-        )}
+                        />
+                    </label>
+                ) : (
+                    <div className="rounded-xl bg-white border border-gray-200 p-3">
+                        <div className="text-xs text-gray-500 mb-1">Diameter (locked)</div>
+                        <div className="text-sm font-medium text-gray-800">
+                            {diameterKm ? `${diameterKm.toFixed(3)} km` : '—'}
+                        </div>
+                    </div>
+                )}
 
-        {!lockKinematics ? (
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium text-gray-700">Velocity (km/s)</span>
-            <input
-              type="number"
-              value={formData.velocity / 1000 /* mostra em km/s */}
-              onChange={(e) => {
-                const v = e.currentTarget.valueAsNumber; // km/s
-                onChange('velocity', Number.isFinite(v) ? v * 1000 : 0); // salva m/s
-              }}
-              step="any"
-              min={0}
-              required
-              className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900
+                {!lockKinematics ? (
+                    <label className="block">
+                        <span className="mb-1 block text-sm font-medium text-gray-700">
+                            Velocity (km/s)
+                        </span>
+                        <input
+                            type="number"
+                            value={formData.velocity / 1000 /* mostra em km/s */}
+                            onChange={(e) => {
+                                const v = e.currentTarget.valueAsNumber; // km/s
+                                onChange('velocity', Number.isFinite(v) ? v * 1000 : 0); // salva m/s
+                            }}
+                            step="any"
+                            min={0}
+                            required
+                            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900
                          placeholder-gray-400 outline-none transition
                          focus:border-sky-500 focus:ring-4 focus:ring-sky-200/60"
-            />
-          </label>
-        ) : (
-          <div className="rounded-xl bg-white border border-gray-200 p-3">
-            <div className="text-xs text-gray-500 mb-1">Velocity (locked)</div>
-            <div className="text-sm font-medium text-gray-800">
-              {velocityKms ? `${velocityKms.toFixed(2)} km/s` : '—'}
-            </div>
-          </div>
-        )}
+                        />
+                    </label>
+                ) : (
+                    <div className="rounded-xl bg-white border border-gray-200 p-3">
+                        <div className="text-xs text-gray-500 mb-1">Velocity (locked)</div>
+                        <div className="text-sm font-medium text-gray-800">
+                            {velocityKms ? `${velocityKms.toFixed(2)} km/s` : '—'}
+                        </div>
+                    </div>
+                )}
 
-        {/* Latitude */}
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-gray-700">Latitude</span>
-          <input
-            type="number"
-            value={formData.lat}
-            step="any"
-            onChange={handleNumber('lat')}
-            min={-90}
-            max={90}
-            required
-            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900
+                {/* Latitude */}
+                <label className="block">
+                    <span className="mb-1 block text-sm font-medium text-gray-700">Latitude</span>
+                    <input
+                        type="number"
+                        value={formData.lat}
+                        step="any"
+                        onChange={handleNumber('lat')}
+                        min={-90}
+                        max={90}
+                        required
+                        className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900
                        placeholder-gray-400 outline-none transition
                        focus:border-sky-500 focus:ring-4 focus:ring-sky-200/60"
-          />
-        </label>
+                    />
+                </label>
 
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-gray-700">Longitude</span>
-          <input
-            type="number"
-            value={formData.lon}
-            step="any"
-            onChange={handleNumber('lon')}
-            min={-180}
-            max={180}
-            required
-            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900
+                <label className="block">
+                    <span className="mb-1 block text-sm font-medium text-gray-700">Longitude</span>
+                    <input
+                        type="number"
+                        value={formData.lon}
+                        step="any"
+                        onChange={handleNumber('lon')}
+                        min={-180}
+                        max={180}
+                        required
+                        className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900
                        placeholder-gray-400 outline-none transition
                        focus:border-sky-500 focus:ring-4 focus:ring-sky-200/60"
-          />
-        </label>
+                    />
+                </label>
 
-        <button
-          type="submit"
-          className="mt-2 w-full rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-medium text-white
+                <button
+                    type="submit"
+                    className="mt-2 w-full rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-medium text-white
                      shadow-sm transition hover:bg-sky-700 focus:outline-none
                      focus:ring-4 focus:ring-sky-200/70 active:scale-[0.99] hover:cursor-pointer
                      disabled:cursor-not-allowed disabled:bg-sky-400"
-        >
-          Simulate
-        </button>
-      </fieldset>
-    </form>
-  );
+                >
+                    Simulate
+                </button>
+            </fieldset>
+        </form>
+    );
 }

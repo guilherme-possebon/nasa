@@ -4,67 +4,68 @@ import { useEffect } from 'react';
 import { useMap } from 'react-leaflet';
 import type { OverpassElement } from '@/types/overpass';
 import type { LeafletMouseEvent } from 'leaflet';
+import type Crater from '@/lib/Crater';
 
 interface Props {
-  blastRadius: number;
-  cities: OverpassElement[];
-  lat: number;
-  lon: number;
-  onClick?: (lat: number, lon: number) => void;
+    crater: Crater | null;
+    cities: OverpassElement[];
+    lat: number;
+    lon: number;
+    onClick?: (lat: number, lon: number) => void;
 }
 
-export default function LayerManager({ blastRadius, cities, lat, lon, onClick }: Props) {
-  const map = useMap();
+export default function LayerManager({ crater, cities, lat, lon, onClick }: Props) {
+    const map = useMap();
 
-  useEffect(() => {
-    // Dynamically import leaflet only in the browser
-    if (typeof window === 'undefined') return;
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
 
-    const LPromise = import('leaflet');
+        const LPromise = import('leaflet');
 
-    LPromise.then((L) => {
-      // Clear previous layers except tile layer
-      map.eachLayer((layer) => {
-        if (layer instanceof L.TileLayer) return;
-        map.removeLayer(layer);
-      });
+        LPromise.then((L) => {
+            map.eachLayer((layer) => {
+                if (layer instanceof L.TileLayer) return;
+                map.removeLayer(layer);
+            });
 
-      // Don't draw anything if lat/lon are at their initial zero state
-      if (!lat && !lon) return;
+            if (!lat && !lon) return;
 
-      // Draw marker and circle based on props
-      L.marker([lat, lon]).addTo(map).bindPopup('Impact site').openPopup();
+            L.marker([lat, lon]).addTo(map).bindPopup('Impact site').openPopup();
 
-      L.circle([lat, lon], {
-        radius: blastRadius,
-        color: 'red',
-        fillOpacity: 0.3,
-      }).addTo(map);
+            if (crater) {
+                L.circle([lat, lon], {
+                    radius: crater.borderRadius,
+                    color: 'red',
+                    fillOpacity: 0.3,
+                }).addTo(map);
+            }
 
-      cities.forEach((city) => {
-        if (city.tags.name) {
-          L.marker([city.lat, city.lon]).addTo(map).bindPopup(`${city.tags.name} (affected)`);
-        }
-      });
+            cities.forEach((city) => {
+                if (city.tags.name) {
+                    L.marker([city.lat, city.lon])
+                        .addTo(map)
+                        .bindPopup(`${city.tags.name} (affected)`);
+                }
+            });
 
-      map.setView([lat, lon], 3);
-    });
-  }, [map, lat, lon, blastRadius, cities]);
+            map.setView([lat, lon], 3);
+        });
+    }, [map, lat, lon, crater, cities]);
 
-  useEffect(() => {
-    if (!onClick) return; // If no onClick prop, do nothing
+    useEffect(() => {
+        if (!onClick) return;
 
-    const handleClick = (e: LeafletMouseEvent) => {
-      const { lat: clickedLat, lng: clickedLng } = e.latlng;
-      onClick(clickedLat, clickedLng);
-    };
+        const handleClick = (e: LeafletMouseEvent) => {
+            const { lat: clickedLat, lng: clickedLng } = e.latlng;
+            onClick(clickedLat, clickedLng);
+        };
 
-    map.on('click', handleClick);
+        map.on('click', handleClick);
 
-    return () => {
-      map.off('click', handleClick);
-    };
-  }, [map, onClick]);
+        return () => {
+            map.off('click', handleClick);
+        };
+    }, [map, onClick]);
 
-  return null;
+    return null;
 }
