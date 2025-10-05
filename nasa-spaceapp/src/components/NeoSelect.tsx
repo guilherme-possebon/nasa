@@ -39,7 +39,7 @@ export default function NeoSelect({ value, onChange, disabled }: Props) {
   return (
     <div className="mb-4">
       <label className="block text-sm font-medium text-gray-100 mb-1">
-        Asteroide (NeoWs)
+        Celestial Body
       </label>
 
       <select
@@ -48,16 +48,16 @@ export default function NeoSelect({ value, onChange, disabled }: Props) {
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled || loading}
       >
-        <option value="">{loading ? "Carregando..." : "Selecione..."}</option>
+        <option value="">{loading ? "Loading..." : "Select..."}</option>
         {items.map((it) => (
           <option key={it.id} value={it.id}>
-            {it.name_limited} ({it.neo_reference_id})
+            {it.name_limited}
           </option>
         ))}
       </select>
 
       <p className="mt-1 text-xs text-gray-300">
-        Ao escolher um asteroide, o diâmetro e a velocidade são preenchidos automaticamente.
+        When selecting a celestial body, the diameter and velocity are filled in automatically.
       </p>
     </div>
   );
