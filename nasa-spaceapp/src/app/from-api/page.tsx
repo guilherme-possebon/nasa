@@ -9,6 +9,18 @@ import { useSimulatorForm } from '@/context/SimulatorFormContext';
 import SimulationLayout from '@/components/SimulationLayout';
 import Sidebar from '@/components/Sidebar';
 
+type NeoDetail = {
+    id: string;
+    name: string;
+    diameter_km?: number;
+    velocity_kms?: number;
+    hazardous?: boolean;
+    taxonomy?: { spec_B?: string; spec_T?: string; albedo_pv?: number };
+    density_g_cm3?: number;
+    density_kg_m3?: number;
+    density_source?: 'measured' | 'taxonomy' | 'albedo' | 'fallback';
+};
+
 const Map = dynamic(() => import('@/components/Map'), { ssr: false });
 
 export default function Home() {
@@ -17,6 +29,7 @@ export default function Home() {
     const [cities, setCities] = useState<OverpassElement[]>([]);
     const [crater, setCrater] = useState<Crater | null>(null);
     const [isSimulating, setIsSimulating] = useState(false);
+    const [neoInfo, setNeoInfo] = useState<NeoDetail | null>(null);
 
     const handleFormChange = (name: keyof typeof formData, value: number) => {
         setFormData((prev) => ({ ...prev, [name]: value }));
@@ -34,24 +47,48 @@ export default function Home() {
         return data.elements || [];
     }
 
+    async function handleNeoSelect(id: string) {
+        if (!id) {
+            setNeoInfo(null);
+            return;
+        }
+
+        const res = await fetch(`/api/neos/${id}`);
+        const data: NeoDetail = await res.json();
+        setNeoInfo(data);
+
+        setFormData((prev) => ({
+            ...prev,
+            diameter: data.diameter_km ? data.diameter_km * 1000 : 0,
+            velocity: data.velocity_kms ? data.velocity_kms * 1000 : 0,
+            density: data.density_kg_m3 ?? 3000,
+        }));
+    }
+
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setIsSimulating(true);
+
         const { diameter, velocity, density, lat, lon } = formData;
+        if (diameter <= 0 || velocity <= 0 || density <= 0) {
+            setResults('Please provide a valid asteroid (diameter/velocity) and density > 0.');
+            return;
+        }
 
         const newCrater = new Crater(diameter, velocity, density);
         setCrater(newCrater);
 
         setResults(
-            `Mass: ${(newCrater.mass / 1e9).toFixed(2)} billion kg
-Impact Energy: ${(newCrater.tnt / 1e6).toFixed(2)} Megatons TNT
-Blast radius: ${(newCrater.borderRadius / 1000).toFixed(2)} km
-Loading affected cities...`,
+            `Mass: ${(newCrater.mass / 1e9).toFixed(2)} billion kg\n` +
+                `Impact Energy: ${(newCrater.tnt / 1e6).toFixed(2)} Megatons TNT\n` +
+                `Blast radius: ${(newCrater.borderRadius / 1000).toFixed(2)} km\n` +
+                `Loading affected cities...`,
         );
 
         try {
             const cs = await fetchCitiesViaApi(lat, lon, newCrater.borderRadius);
             setCities(cs);
+
             if (cs.length === 0) {
                 setResults((prev) => prev + '\nNo cities found in blast radius.');
             } else {
@@ -72,6 +109,7 @@ Loading affected cities...`,
         setResults('');
         setCities([]);
         setCrater(null);
+        setNeoInfo(null);
     };
 
     return (
@@ -96,10 +134,12 @@ Loading affected cities...`,
                     formData={formData}
                     onChange={handleFormChange}
                     onSubmit={handleSubmit}
-                    lockKinematics={false}
+                    lockKinematics={!!neoInfo}
                     isSimulating={isSimulating}
                     results={results}
                     onReset={handleReset}
+                    neoInfo={neoInfo}
+                    handleNeoSelect={handleNeoSelect}
                 />
             }
         />
