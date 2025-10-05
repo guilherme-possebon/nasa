@@ -6,6 +6,7 @@ export default class Crater {
     private _energy: number;
     private _tnt: number;
     private _borderRadius: number;
+    private _diameter: number;
 
     constructor(diameter: number, velocity: number, density: number) {
         this._diameter = diameter;
