@@ -7,7 +7,7 @@ import LayerManager from '@/components/LayerManager';
 import Crater from '@/lib/Crater';
 import { useSimulatorForm } from '@/context/SimulatorFormContext';
 import SimulationLayout from '@/components/SimulationLayout';
-import Sidebar, { ISimulatorFormData } from '@/components/Sidebar'; // Import ISimulatorFormData
+import Sidebar, { ISimulatorFormData } from '@/components/Sidebar';
 import { Impact } from '@/lib/Impact';
 
 const Map = dynamic(() => import('@/components/Map'), { ssr: false });
@@ -24,17 +24,17 @@ export default function Home() {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    // async function fetchCitiesViaApi(lat: number, lon: number, radius: number) {
-    //     const params = new URLSearchParams({
-    //         lat: String(lat),
-    //         lon: String(lon),
-    //         radius: String(radius),
-    //     });
-    //     const res = await fetch(`/api/overpass?${params.toString()}`);
-    //     if (!res.ok) throw new Error(`API /overpass: ${res.status}`);
-    //     const data: OverpassResponse = await res.json();
-    //     return data.elements || [];
-    // }
+    async function fetchCitiesViaApi(lat: number, lon: number, radius: number) {
+        const params = new URLSearchParams({
+            lat: String(lat),
+            lon: String(lon),
+            radius: String(radius),
+        });
+        const res = await fetch(`/api/overpass?${params.toString()}`);
+        if (!res.ok) throw new Error(`API /overpass: ${res.status}`);
+        const data: OverpassResponse = await res.json();
+        return data.elements || [];
+    }
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -52,27 +52,27 @@ export default function Home() {
                 `Loading affected cities...`,
         );
 
-        // try {
-        //     const cs = await fetchCitiesViaApi(lat, lon, newCrater.blastRadius);
-        //     setCities(cs);
-        //     if (cs.length === 0) {
-        //         setResults((prev) =>
-        //             prev.replace('Loading affected cities...', 'No cities found in blast radius.'),
-        //         );
-        //     } else {
-        //         const names = cs
-        //             .map((c) => c.tags.name)
-        //             .filter(Boolean)
-        //             .join(', ');
-        //         setResults((prev) =>
-        //             prev.replace('Loading affected cities...', `\nAffected cities: ${names}`),
-        //         );
-        //     }
-        // } catch {
-        //     setResults((prev) =>
-        //         prev.replace('Loading affected cities...', '\nError fetching cities data.'),
-        //     );
-        // }
+        try {
+            const cs = await fetchCitiesViaApi(lat, lon, newCrater.blastRadius);
+            setCities(cs);
+            if (cs.length === 0) {
+                setResults((prev) =>
+                    prev.replace('Loading affected cities...', 'No cities found in blast radius.'),
+                );
+            } else {
+                const names = cs
+                    .map((c) => c.tags.name)
+                    .filter(Boolean)
+                    .join(', ');
+                setResults((prev) =>
+                    prev.replace('Loading affected cities...', `\nAffected cities: ${names}`),
+                );
+            }
+        } catch {
+            setResults((prev) =>
+                prev.replace('Loading affected cities...', '\nError fetching cities data.'),
+            );
+        }
     }
 
     const handleReset = () => {
@@ -81,7 +81,7 @@ export default function Home() {
         setResults('');
         setCities([]);
         setCrater(null);
-        setImpact(null); // Reset the impact object
+        setImpact(null);
     };
 
     return (

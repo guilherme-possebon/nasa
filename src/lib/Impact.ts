@@ -16,18 +16,13 @@ export class Impact {
      * @returns {number} O raio da devastação em quilômetros.
      */
     get devastationRadiusKm(): number {
-        // --- Ponto de Referência (Evento de Tunguska) ---
-        // Energia de referência do impacto de Tunguska em Megatons de TNT.
         const REFERENCE_ENERGY_MT = 12;
-        // Área devastada por esse impacto de referência (em km²).
+
         const REFERENCE_AREA_SQ_KM = 2150;
 
-        // --- Lógica de Escala por Lei de Potência (Mais precisa) ---
-        // A área de devastação escala com a energia elevada à potência de 2/3.
         const energyRatio = this.impactEnergyMt / REFERENCE_ENERGY_MT;
         const scaledAreaSqKm = REFERENCE_AREA_SQ_KM * Math.pow(energyRatio, 2 / 3);
 
-        // Calculamos o raio a partir da área escalonada (Área = PI * raio^2).
         const radius = Math.sqrt(scaledAreaSqKm / Math.PI);
 
         return radius;

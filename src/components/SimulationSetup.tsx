@@ -3,10 +3,9 @@
 import React from 'react';
 import SimulatorForm from '@/components/SimulatorForm';
 import NeoSelect from './NeoSelect';
-// Import the shared types from a central location or the parent component
+
 import { ISimulatorFormData, NeoDetail } from './Sidebar';
 
-// Define props with specific types inferred from the application's context
 interface SimulationSetupProps {
     formData: ISimulatorFormData;
     onChange: (name: keyof ISimulatorFormData, value: number) => void;

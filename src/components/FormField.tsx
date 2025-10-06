@@ -2,7 +2,6 @@
 
 import React from 'react';
 
-// Define the props for our new reusable component
 interface FormFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label: string;
     unit?: string;
@@ -15,9 +14,8 @@ export default function FormField({
     unit,
     isLocked = false,
     lockedValue,
-    ...props // Pass through any other standard input props like 'type', 'min', 'step', etc.
+    ...props
 }: FormFieldProps) {
-    // If the field is locked, display a styled div instead of an input
     if (isLocked) {
         return (
             <div>
@@ -29,7 +27,6 @@ export default function FormField({
         );
     }
 
-    // Otherwise, render the label and the input field
     return (
         <label className="block">
             <span className="mb-1 block text-sm font-medium text-gray-700">

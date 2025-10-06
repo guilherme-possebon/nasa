@@ -37,17 +37,17 @@ export default function Home() {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    // async function fetchCitiesViaApi(lat: number, lon: number, radius: number) {
-    //     const params = new URLSearchParams({
-    //         lat: String(lat),
-    //         lon: String(lon),
-    //         radius: String(radius),
-    //     });
-    //     const res = await fetch(`/api/overpass?${params.toString()}`);
-    //     if (!res.ok) throw new Error(`API /overpass: ${res.status}`);
-    //     const data: OverpassResponse = await res.json();
-    //     return data.elements || [];
-    // }
+    async function fetchCitiesViaApi(lat: number, lon: number, radius: number) {
+        const params = new URLSearchParams({
+            lat: String(lat),
+            lon: String(lon),
+            radius: String(radius),
+        });
+        const res = await fetch(`/api/overpass?${params.toString()}`);
+        if (!res.ok) throw new Error(`API /overpass: ${res.status}`);
+        const data: OverpassResponse = await res.json();
+        return data.elements || [];
+    }
 
     async function handleNeoSelect(id: string) {
         if (!id) {
@@ -81,29 +81,29 @@ export default function Home() {
         setCrater(newCrater);
         setImpact(new Impact(newCrater.tnt));
 
-        // setResults(
-        //     `Mass: ${(newCrater.mass / 1e9).toFixed(2)} billion kg\n` +
-        //         `Impact Energy: ${(newCrater.tnt / 1e6).toFixed(2)} Megatons TNT\n` +
-        //         `Crater Diameter: ${(newCrater.craterDiameter / 1000).toFixed(2)} km\n` +
-        //         `Loading affected cities...`,
-        // );
+        setResults(
+            `Mass: ${(newCrater.mass / 1e9).toFixed(2)} billion kg\n` +
+                `Impact Energy: ${(newCrater.tnt / 1e6).toFixed(2)} Megatons TNT\n` +
+                `Crater Diameter: ${(newCrater.craterDiameter / 1000).toFixed(2)} km\n` +
+                `Loading affected cities...`,
+        );
 
-        // try {
-        //     const cs = await fetchCitiesViaApi(lat, lon, newCrater.craterRadius);
-        //     setCities(cs);
+        try {
+            const cs = await fetchCitiesViaApi(lat, lon, newCrater.craterRadius);
+            setCities(cs);
 
-        //     if (cs.length === 0) {
-        //         setResults((prev) => prev + '\nNo cities found in blast radius.');
-        //     } else {
-        //         const names = cs
-        //             .map((c) => c.tags.name)
-        //             .filter(Boolean)
-        //             .join(', ');
-        //         setResults((prev) => prev + `\nAffected cities: ${names}`);
-        //     }
-        // } catch {
-        //     setResults((prev) => prev + '\nError fetching cities data.');
-        // }
+            if (cs.length === 0) {
+                setResults((prev) => prev + '\nNo cities found in blast radius.');
+            } else {
+                const names = cs
+                    .map((c) => c.tags.name)
+                    .filter(Boolean)
+                    .join(', ');
+                setResults((prev) => prev + `\nAffected cities: ${names}`);
+            }
+        } catch {
+            setResults((prev) => prev + '\nError fetching cities data.');
+        }
     }
 
     const handleReset = () => {

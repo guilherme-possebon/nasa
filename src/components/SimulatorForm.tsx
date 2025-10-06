@@ -1,13 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import FormField from './FormField'; // Import the new component
+import FormField from './FormField';
 
-// This interface should match the one from your context/parent component
 export interface ISimulatorFormData {
-    diameter: number; // Stored in meters
-    velocity: number; // Stored in m/s
-    density: number; // Stored in kg/m³
+    diameter: number;
+    velocity: number;
+    density: number;
     lat: number;
     lon: number;
 }
@@ -27,7 +26,6 @@ export default function SimulatorForm({
     disabled,
     lockKinematics = false,
 }: SimulatorFormProps) {
-    // Generic handler for number inputs. It handles NaN cases.
     const handleNumberChange = (
         name: keyof ISimulatorFormData,
         value: number,
@@ -64,19 +62,16 @@ export default function SimulatorForm({
                 {/* Velocity Input */}
                 <FormField
                     label="Velocity"
-                    unit="km/h" // <-- Unit changed
+                    unit="km/h"
                     type="number"
-                    // Convert internal state (m/s) to km/h for display
                     value={formData.velocity > 0 ? formData.velocity * 3.6 : ''}
                     onChange={(e) =>
-                        // Convert input (km/h) back to internal state (m/s)
                         handleNumberChange('velocity', e.currentTarget.valueAsNumber, 1 / 3.6)
                     }
                     step="any"
                     min={0}
                     required
                     isLocked={lockKinematics}
-                    // Also update the locked value display to km/h
                     lockedValue={`${(formData.velocity * 3.6).toFixed(2)} km/h`}
                 />
 

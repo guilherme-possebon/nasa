@@ -57,14 +57,13 @@ export default function LayerManager({ crater, Impact, cities, lat, lon, onClick
                 }).addTo(map);
             }
 
-            // ... (your existing cities logic)
-            //cities.forEach((city) => {
-            //  if (city.tags.name) {
-            //    const cityMarker = L.marker([city.lat, city.lon]);
-            //  cityMarker.addTo(map);
-            //cityMarker.bindPopup(`${city.tags.name} (affected)`);
-            //}
-            // });
+            cities.forEach((city) => {
+                if (city.tags.name) {
+                    const cityMarker = L.marker([city.lat, city.lon]);
+                    cityMarker.addTo(map);
+                    cityMarker.bindPopup(`${city.tags.name} (affected)`);
+                }
+            });
 
             map.setView([lat, lon], 3);
         });

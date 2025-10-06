@@ -6,9 +6,6 @@ import { ArrowLeftIcon } from '@phosphor-icons/react';
 import ResultsPanel from '@/components/ResultsPanel';
 import SimulationSetup from './SimulationSetup';
 
-// --- TYPE INFERENCE FROM CONTEXT ---
-// By defining this type based on your SimulatorFormContext, we ensure consistency.
-// This can be in the same file or imported from a central 'types.ts' file.
 export interface ISimulatorFormData {
     diameter: number;
     velocity: number;
@@ -17,7 +14,6 @@ export interface ISimulatorFormData {
     lon: number;
 }
 
-// --- SHARED TYPES ---
 export type NeoDetail = {
     id: string;
     name: string;
