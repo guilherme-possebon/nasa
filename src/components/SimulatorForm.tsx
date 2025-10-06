@@ -95,7 +95,7 @@ export default function SimulatorForm({
                         label="Latitude"
                         unit="°"
                         type="number"
-                        value={formData.lat}
+                        value={formData.lat !== 0 ? formData.lat : ''}
                         onChange={(e) => handleNumberChange('lat', e.currentTarget.valueAsNumber)}
                         step="any"
                         required
@@ -104,7 +104,7 @@ export default function SimulatorForm({
                         label="Longitude"
                         unit="°"
                         type="number"
-                        value={formData.lon}
+                        value={formData.lon !== 0 ? formData.lon : ''}
                         onChange={(e) => handleNumberChange('lon', e.currentTarget.valueAsNumber)}
                         step="any"
                         required

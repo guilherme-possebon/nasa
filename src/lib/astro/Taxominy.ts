@@ -1,4 +1,3 @@
-// src/lib/astro/taxonomy.ts
 export type DensityEstimate = {
     rho_g_cm3: number;
     source: 'taxonomy' | 'albedo' | 'fallback';
